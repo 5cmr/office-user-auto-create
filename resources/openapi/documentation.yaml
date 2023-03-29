@@ -1,0 +1,8 @@
+openapi: "3.0.3"
+info:
+  title: "office_user_auto_create API"
+  description: "office_user_auto_create API"
+  version: "1.0.0"
+servers:
+- url: "https://office_user_auto_create"
+paths: {}
