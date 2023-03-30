@@ -25,7 +25,7 @@ allprojects {
 //        maven { url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap") }
 //        maven(url = "https://kotlin.bintray.com/ktor")
 //        maven(url = "https://dl.bintray.com/kotlin/exposed")
-        maven(url = "https://jitpack.io")
+//        maven(url = "https://jitpack.io")
 //        maven(url = "https://www.myget.org/F/ifish/maven")
 
     }
