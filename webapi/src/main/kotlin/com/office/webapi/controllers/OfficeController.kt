@@ -1,111 +1,120 @@
 package com.office.webapi.controllers
 
 import cn.hutool.http.HttpRequest
+import cn.hutool.http.HttpUtil
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.prprpr.core.domain.service.SsrService
-import com.prprpr.webapi.resultmodels.SsrResultModel
-import kotlinx.coroutines.runBlocking
+
 
 /**
  * ssr 控制器
  */
 class OfficeController {
-    private val tenantId = "62a949a1-6a4a-4cef-aaa1-ce6fdfd884a5"  // 目录(租户) ID
-    private val clientId = "b8d2f918-86ad-4f97-80eb-dbe91f20e103"  // 应用程序(客户端) ID
-    private val clientSecret = "crc8Q~48r3dE4yyoJpz3OFFL3Mo-f1kQ_GykZds1"
+    private val _tenantId = "62a949a1-6a4a-4cef-aaa1-ce6fdfd884a5"  // 目录(租户) ID
+    private val _clientId = "b8d2f918-86ad-4f97-80eb-dbe91f20e103"  // 应用程序(客户端) ID
+    private val _clientSecret = "crc8Q~48r3dE4yyoJpz3OFFL3Mo-f1kQ_GykZds1"
+    private var _token: String? = null
 
-    private val ssrService = SsrService()
+//    private val ssrService = SsrService()
 
-    fun getList() = runBlocking {
-        val dto = ssrService.findAll()
+//    fun getList() = runBlocking {
+//        val dto = ssrService.findAll()
+//
+//        return@runBlocking dto.map {
+//            SsrResultModel(
+//                remarks = it.remarks,
+//                url = it.url
+//            )
+//        }
+//    }
 
-        return@runBlocking dto.map {
-            SsrResultModel (
-                remarks = it.remarks,
-                url = it.url
-            )
-        }
+    suspend fun getAccessToken() {
+        val url = "https://login.microsoftonline.com/${_tenantId}/oauth2/v2.0/token"
+        val body = mapOf(
+            "grant_type" to "client_credentials",
+            "client_id" to _clientId,
+            "client_secret" to _clientSecret,
+            "scope" to "https://graph.microsoft.com/.default"
+        )
+
+        val result = HttpUtil.post(url, body)
+        val objectMapper = ObjectMapper()
+        val jsonNode = objectMapper.readTree(result)
+        val accessToken = jsonNode["access_token"]
+        _token = accessToken.asText() ?: null
     }
-    fun getAccessToken() = runBlocking {
-        val url = "https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token"
-        val body = object {
-                val grant_type = "client_credentials"
-                val client_id = clientId
-                val client_secret = clientSecret
-                val scope = "https://graph.microsoft.com/.default"
-        }
-        val result = HttpRequest.post(url).body(ObjectMapper().writeValueAsBytes(body)).execute().body()
 
-//        val data = await res.json()
-//        this.token = data?.access_token || null
-    }
-    fun createUser(username: string, password: string, domain: string) {
-        if (this.token === null)
-            throw 'Token is null'
+    /**
+     * 创建用户
+     * @param username 用户名
+     * @param password 密码
+     * @param domain 域名
+     */
+    suspend fun createUser(username: String, password: String, domain: String) {
+        if (_token == null)
+            throw Exception("Token is null")
 
         val url = "https://graph.microsoft.com/v1.0/users"
-        val body = object {
-            val accountEnabled = true
-            val displayName = username
-            val mailNickname = username
-            val passwordPolicies = "DisablePasswordExpiration, DisableStrongPassword"
-            val passwordProfile = object {
-                val password = password
-                val forceChangePasswordNextSignIn = true
-        },
-           val userPrincipalName = "${username}@${domain}"
-           val usageLocation = "CN"
-        }
+        val body = mapOf(
+            "accountEnabled" to true,
+            "displayName" to username,
+            "mailNickname" to username,
+            "passwordPolicies" to "DisablePasswordExpiration, DisableStrongPassword",
+            "passwordProfile" to mapOf(
+                "password" to password,
+                "forceChangePasswordNextSignIn" to true
+            ),
+            "userPrincipalName" to "$username@$domain",
+            "usageLocation" to "CN"
+        )
+        val headers = mapOf(
+            "Authorization" to "Bearer $_token",
+            "content-type" to "application/json"
+        )
 
-        val res = HttpRequest.post(url)
-            .body(ObjectMapper().writeValueAsBytes(body)).execute().body()
+        val result = HttpRequest
+            .post(url).headerMap(headers, false)
+            .body(ObjectMapper().writeValueAsString(body)).execute().body()
 
+        val objectMapper = ObjectMapper()
+        val jsonNode = objectMapper.readTree(result)
 
-            await fetch(url, {
-            method: 'POST',
-            headers: {
-            'Authorization': `Bearer ${this.token}`,
-            'content-type': 'application/json',
-        },
-            body: JSON.stringify(body)
-        })
-        val data = await res.json()
-
-        if (res.status !== 201)
-            if (data?.error?.message?.includes('userPrincipalName already exists'))
-                throw 'Username Exists'
+        if (jsonNode["status"].asInt() != 201)
+            if (jsonNode["error"]["message"]?.asText()?.contains("userPrincipalName already exists") == true)
+                throw Exception("Username Exists")
             else
-                throw JSON.stringify(data)
+                throw Exception(result)
     }
 
-    fun assignLicense(email: string, skuId: string) {
-        if (this.token === null)
-            throw 'Token is null'
+    suspend fun assignLicense(email: String, skuId: String) {
+        if (_token == null)
+            throw Exception("Token is null")
 
-        val url = `https://graph.microsoft.com/v1.0/users/${email}/assignLicense`
-                const body = {
-            addLicenses: [
-            {
-                disabledPlans: [],
-                skuId: skuId
-            },
-            ],
-            removeLicenses: []
-        }
-        val res = await fetch(url, {
-            method: 'POST',
-            headers: {
-            'Authorization': `Bearer ${this.token}`,
-            'Content-Type': 'application/json'
-        },
-            body: JSON.stringify(body)
-        })
-        val data = await res.json()
+        val url = "https://graph.microsoft.com/v1.0/users/$email/assignLicense"
+        val body = mapOf(
+            "addLicenses" to listOf(
+                mapOf(
+                    "disabledPlans" to emptyList<String>(),
+                    "skuId" to skuId
+                )
+            ),
+            "removeLicenses" to emptyList<String>()
+        )
 
-        if (res.status !== 200)
-            throw JSON.stringify(data)
+        val headers = mapOf(
+            "Authorization" to "Bearer $_token",
+            "content-type" to "application/json"
+        )
+
+        val result = HttpRequest
+            .post(url).headerMap(headers, false)
+            .body(ObjectMapper().writeValueAsString(body)).execute().body()
+
+        val objectMapper = ObjectMapper()
+        val jsonNode = objectMapper.readTree(result)
+
+        if (jsonNode["status"].asInt() != 200)
+            throw Exception(result)
     }
-
 
 
 }

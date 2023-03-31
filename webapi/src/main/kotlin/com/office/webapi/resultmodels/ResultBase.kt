@@ -5,9 +5,9 @@ import io.ktor.http.HttpStatusCode
 /**
  * 返回结果
  */
-data class ResultBase<T> (
+data class ResultBase (
     val success: Boolean = true,  // 是否成功
     val error: HttpStatusCode = HttpStatusCode.OK,  // 错误代码
     val errorMsg: String = "",  // 错误信息
-    var data: T? = null  // 数据
+    var data: Any? = null  // 数据
 )

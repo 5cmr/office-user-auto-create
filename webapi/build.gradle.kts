@@ -49,8 +49,9 @@ dependencies {
     implementation("io.ktor:ktor-server-openapi:$ktor_version")
     implementation("io.swagger.codegen.v3:swagger-codegen-generators:1.0.36")
 
-    implementation(project(path=":core"))
-    implementation(kotlin("stdlib-jdk8"))
+    api("cn.hutool:hutool-all:5.8.16")
+//    implementation(project(path=":core"))
+//    implementation(kotlin("stdlib-jdk8"))
 
 
 }

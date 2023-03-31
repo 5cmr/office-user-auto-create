@@ -1,13 +1,42 @@
 package com.office.webapi.routes
 
+import com.office.webapi.controllers.OfficeController
+import com.office.webapi.resultmodels.ResultBase
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
+data class AccountRequest(val username: String, val password: String, val domain: String, val skuId: String)
 /**
  * ssr 路由
  */
-fun Route.ssr() {
-    route("/ssr") {
+fun Route.Office() {
+    route("/Office") {
+        val ssrController = OfficeController()
+        post {
+            val accountRequest = call.receive<AccountRequest>()
+            ssrController.getAccessToken()
+            ssrController.createUser("", "", "")
+            ssrController.assignLicense("", "")
+            val result = ResultBase()
 
+            call.respond(result)
+        }
+
+        get("/config") {
+            val result = mapOf(
+                "subscriptions" to arrayOf(mapOf(
+                    "name" to "subscription 1",
+                    "sku" to "skuid"
+                ), mapOf(
+                    "name" to "subscription 1",
+                    "sku" to "skuid"
+                )),
+                "domains" to arrayOf("yayoo.tk", "domain2.org"),
+            )
+            call.respond(result)
+        }
     }
 }
 //fun ssr() = routing {
