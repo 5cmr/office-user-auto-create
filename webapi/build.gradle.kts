@@ -46,6 +46,7 @@ dependencies {
     implementation("mysql:mysql-connector-java:8.0.28")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.32.1")
 
+    implementation("io.ktor:ktor-server-swagger:$ktor_version")
     implementation("io.ktor:ktor-server-openapi:$ktor_version")
     implementation("io.swagger.codegen.v3:swagger-codegen-generators:1.0.36")
 

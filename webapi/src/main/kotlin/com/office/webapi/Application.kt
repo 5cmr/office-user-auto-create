@@ -18,7 +18,7 @@ fun Application.module(testing: Boolean = false) {
     configureHTTP()
     configureRouting()
 
-    envKind = environment.config.property("ktor.deployment.environment").getString()
+    //envKind = environment.config.property("ktor.deployment.environment").getString()
     //initDB()
 }
 private lateinit var envKind: String

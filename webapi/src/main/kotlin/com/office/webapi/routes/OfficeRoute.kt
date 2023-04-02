@@ -11,8 +11,8 @@ data class AccountRequest(val username: String, val password: String, val domain
 /**
  * ssr 路由
  */
-fun Route.Office() {
-    route("/Office") {
+fun Route.office() {
+    route("/office") {
         val ssrController = OfficeController()
         post {
             val accountRequest = call.receive<AccountRequest>()

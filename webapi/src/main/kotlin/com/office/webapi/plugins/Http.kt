@@ -7,6 +7,7 @@ import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.openapi.*
+import io.ktor.server.plugins.swagger.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.swagger.codegen.v3.generators.html.StaticHtmlCodegen
@@ -19,6 +20,7 @@ fun Application.configureHTTP() {
         allowMethod(HttpMethod.Patch)
         allowHeader(HttpHeaders.Authorization)
         allowHeader("MyCustomHeader")
+        allowHeader(HttpHeaders.ContentType)
         allowCredentials = true
         anyHost() // @TODO: Don't do this in production if possible. Try to limit it.
 
@@ -52,8 +54,11 @@ fun Application.configureHTTP() {
         get("/json/kotlinx-serialization") {
             call.respond(mapOf("hello" to "world"))
         }
-        openAPI(path="openapi", swaggerFile = "openapi/documentation.yaml") {
-            codegen = StaticHtmlCodegen()
+//        openAPI(path="openapi", swaggerFile = "openapi/documentation.yaml") {
+//            codegen = StaticHtmlCodegen()
+//        }
+        swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml") {
+            version = "4.15.5"
         }
         // /swagger-ui/index.html?url=/openapi.json
 //        get("/") {
