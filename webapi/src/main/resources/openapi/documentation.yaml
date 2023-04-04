@@ -4,5 +4,93 @@ info:
   description: "office_user_auto_create API"
   version: "1.0.0"
 servers:
-- url: "https://office_user_auto_create"
-paths: {}
+- url: "http://localhost:8080"
+paths:
+  /json/jackson:
+    get:
+      description: "get(\"/\") { <br> call.respondText(\"HELLO WORLD!\", contentType\
+        \ = ContentType.Text.Plain) <br> } <br> get<MyLocation> { <br> call.respondText(\"\
+        Location: name=${it.name}, arg1=${it.arg1}, arg2=${it.arg2}\") <br> } <br>\
+        \ // Register nested routes <br> get<Type.Edit> { <br> call.respondText(\"\
+        Inside $it\") <br> } <br> get<Type.List> { <br> call.respondText(\"Inside\
+        \ $it\") <br> }"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /json/kotlinx-serialization:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /api/v1/office/config:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /api/v1/office/create:
+    post:
+      description: ""
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: "#/components/schemas/AccountRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ResultBase"
+components:
+  schemas:
+    AccountRequest:
+      type: "object"
+      properties:
+        nickname:
+          type: "string"
+        username:
+          type: "string"
+        password:
+          type: "string"
+        domain:
+          type: "string"
+        skuId:
+          type: "string"
+    HttpStatusCode:
+      type: "object"
+      properties:
+        value:
+          type: "integer"
+          format: "int32"
+        description:
+          type: "string"
+    Object:
+      type: "object"
+      properties: {}
+    ResultBase:
+      type: "object"
+      properties:
+        success:
+          type: "boolean"
+        error:
+          $ref: "#/components/schemas/HttpStatusCode"
+        errorMsg:
+          type: "string"
+        data:
+          $ref: "#/components/schemas/Object"

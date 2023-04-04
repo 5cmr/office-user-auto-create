@@ -47,8 +47,6 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:0.32.1")
 
     implementation("io.ktor:ktor-server-swagger:$ktor_version")
-    implementation("io.ktor:ktor-server-openapi:$ktor_version")
-    implementation("io.swagger.codegen.v3:swagger-codegen-generators:1.0.36")
 
     api("cn.hutool:hutool-all:5.8.16")
 //    implementation(project(path=":core"))

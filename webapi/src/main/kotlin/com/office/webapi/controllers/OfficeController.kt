@@ -45,18 +45,19 @@ class OfficeController {
 
     /**
      * 创建用户
+     * @param nickname 昵称
      * @param username 用户名
      * @param password 密码
      * @param domain 域名
      */
-    suspend fun createUser(username: String, password: String, domain: String) {
+    suspend fun createUser(nickname: String, username: String, password: String, domain: String) {
         if (_token == null)
             throw Exception("Token is null")
 
         val url = "https://graph.microsoft.com/v1.0/users"
         val body = mapOf(
             "accountEnabled" to true,
-            "displayName" to username,
+            "displayName" to nickname,
             "mailNickname" to username,
             "passwordPolicies" to "DisablePasswordExpiration, DisableStrongPassword",
             "passwordProfile" to mapOf(

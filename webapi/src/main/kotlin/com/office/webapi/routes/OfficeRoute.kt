@@ -7,34 +7,33 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-data class AccountRequest(val username: String, val password: String, val domain: String, val skuId: String)
+data class AccountRequest(val nickname: String, val username: String, val password: String, val domain: String, val skuId: String)
 /**
  * ssr 路由
  */
 fun Route.office() {
     route("/office") {
         val ssrController = OfficeController()
-        post {
+        post("/create") {
             val accountRequest = call.receive<AccountRequest>()
             ssrController.getAccessToken()
-            ssrController.createUser("", "", "")
-            ssrController.assignLicense("", "")
+            ssrController.createUser(accountRequest.nickname,accountRequest.username, accountRequest.password, accountRequest.domain)
+            ssrController.assignLicense("$accountRequest.username@$accountRequest.domain", accountRequest.skuId)
             val result = ResultBase()
 
             call.respond(result)
         }
 
         get("/config") {
-            val result = mapOf(
+            val c = mapOf(
                 "subscriptions" to arrayOf(mapOf(
-                    "name" to "subscription 1",
-                    "sku" to "skuid"
-                ), mapOf(
-                    "name" to "subscription 1",
-                    "sku" to "skuid"
+                    "name" to "E5 开发者订阅",
+                    "sku" to "c42b9cae-ea4f-4ab7-9717-81576235ccac"
                 )),
-                "domains" to arrayOf("yayoo.tk", "domain2.org"),
+                "domains" to arrayOf("yayoo.tk"),
             )
+            val result = ResultBase()
+            result.data = c
             call.respond(result)
         }
     }
