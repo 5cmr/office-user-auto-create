@@ -1,51 +1,79 @@
-package com.prprpr.core.domain.service
+package com.office.core.domain.service
 
-import com.prprpr.core.domain.dto.SsrDto
-import com.prprpr.core.domain.entity.MSsr
-import com.prprpr.core.domain.repository.SsrRepository
+import com.office.core.domain.dto.ActivationCodeDto
+import com.office.core.domain.entity.MActivationCode
+import com.office.core.domain.po.TActivationCode
+import com.office.core.domain.repository.ActivationCodeRepository
 import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNotNull
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 
 /**
- * ssr 业务类
+ * 激活码 业务类
  */
-class SsrService {
-    private val ssrRepository: SsrRepository = SsrRepository()
+class ActivationCodeService {
+    private val activationCodeRepository: ActivationCodeRepository = ActivationCodeRepository()
 
     /**
      * 添加数据
      * @param dto 数据
      * @return id
      */
-    fun add(dto: SsrDto): Int {
-        val model = MSsr(
-            remarks = dto.remarks,
-            url = dto.url,
-            addDate = System.currentTimeMillis(),
+    fun add(dto: ActivationCodeDto): Long {
+        val model = MActivationCode(
+            code = dto.code,
+            addTime = System.currentTimeMillis(),
             status = 1,
         )
-        return ssrRepository.add(model)
+        return activationCodeRepository.add(model)
     }
 
+//    /**
+//     * 查询数据
+//     * @return 数据列表
+//     */
+//    fun findAll(where: Op<Boolean>): List<SsrDto> {
+//        var dtos: List<SsrDto>? = null
+//        transaction {
+//            dtos = ssrRepository.findAll().map {
+//                SsrDto(
+//                    id = it.id,
+//                    remarks = it.remarks,
+//                    url = it.url,
+//                    addDate = it.addDate,
+//                    status = it.status,
+//                )
+//            }
+//        }
+//
+//        return dtos!!
+//    }
     /**
      * 查询数据
-     * @return 数据列表
+     * @param code 激活码
+     * @return 数据
      */
-    fun findAll(): List<SsrDto> {
-        var dtos: List<SsrDto>? = null
-        transaction {
-            dtos = ssrRepository.findAll().map {
-                SsrDto(
-                    id = it.id,
-                    remarks = it.remarks,
-                    url = it.url,
-                    addDate = it.addDate,
-                    status = it.status,
-                )
-            }
+    fun find(code: String): ActivationCodeDto? {
+        val models = activationCodeRepository.findAll(Op.build { TActivationCode.code.eq(code) and TActivationCode.status.eq(1)  })
+        return if (models.isNotEmpty()) {
+            ActivationCodeDto(
+                id = models[0].id,
+                addTime = models[0].addTime,
+                status = models[0].status,
+                code = models[0].code
+            )
+        } else {
+            null
         }
 
-        return dtos!!
+
+    }
+
+    fun updateStatus(id: Long, status: Int) {
+        val model = activationCodeRepository.find(id)
+        model.status = status
+        activationCodeRepository.update(model)
     }
 
 //    /**

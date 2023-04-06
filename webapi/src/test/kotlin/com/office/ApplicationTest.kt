@@ -15,8 +15,5 @@ class ApplicationTest {
 //            assertEquals("Hello World!", bodyAsText())
 //        }
         val ssrController = OfficeController()
-        ssrController.getAccessToken()
-        ssrController.createUser("", "", "")
-        ssrController.assignLicense("", "")
     }
 }

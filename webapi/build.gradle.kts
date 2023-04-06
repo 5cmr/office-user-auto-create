@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val ktor_version: String by project
 val kotlin_version: String by project
@@ -7,7 +7,7 @@ val logback_version: String by project
 plugins {
     application
     kotlin("jvm") version "1.8.10"
-    //id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("com.github.johnrengelman.shadow")
 }
 
 group = "com.office"
@@ -39,35 +39,24 @@ dependencies {
     implementation("io.ktor:ktor-serialization-jackson:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("io.ktor:ktor-server-core:$ktor_version")
+    implementation("io.ktor:ktor-server-locations:$ktor_version")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("mysql:mysql-connector-java:8.0.28")
+    implementation("mysql:mysql-connector-java:8.0.32")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.32.1")
 
     implementation("io.ktor:ktor-server-swagger:$ktor_version")
 
-    api("cn.hutool:hutool-all:5.8.16")
-//    implementation(project(path=":core"))
+    implementation(project(path=":core"))
 //    implementation(kotlin("stdlib-jdk8"))
 
 
 }
 
-//shadowJar {
-//    manifest {
-//        attributes 'Main-Class': mainClassName
-//    }
-//}
-repositories {
-    mavenCentral()
-}
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    jvmTarget = "1.8"
-}
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.kotlinOptions {
-    jvmTarget = "1.8"
+tasks.named<ShadowJar>("shadowJar") {
+    manifest {
+        attributes["Main-Class"] = mainClassName
+    }
 }

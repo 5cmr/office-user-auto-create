@@ -3,20 +3,41 @@ package com.office.webapi.controllers
 import cn.hutool.http.HttpRequest
 import cn.hutool.http.HttpUtil
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.office.core.domain.service.ActivationCodeService
+import com.prprpr.core.util.PropertiesUtil
+import io.ktor.server.locations.*
 
 
 /**
  * ssr 控制器
  */
 class OfficeController {
-    private val _tenantId = "62a949a1-6a4a-4cef-aaa1-ce6fdfd884a5"  // 目录(租户) ID
-    private val _clientId = "b8d2f918-86ad-4f97-80eb-dbe91f20e103"  // 应用程序(客户端) ID
-    private val _clientSecret = "crc8Q~48r3dE4yyoJpz3OFFL3Mo-f1kQ_GykZds1"
-    private var _token: String? = null
+    @KtorExperimentalLocationsAPI
+    @Location("/create")
+    data class AccountInput(
+        val nickname: String,
+        val username: String,
+        val password: String,
+        val domain: String,
+        val skuId: String,
+        val code: String
+    )
 
-//    private val ssrService = SsrService()
+    private var tenantId: String  // 目录(租户) ID
+    private var clientId: String  // 应用程序(客户端) ID
+    private var clientSecret: String
+    private var token: String? = null
 
-//    fun getList() = runBlocking {
+    private val activationCodeService = ActivationCodeService()
+
+    init {
+        this.tenantId = PropertiesUtil.getValueString("office.tenantId") ?: ""
+        this.clientId = PropertiesUtil.getValueString("office.clientId") ?: ""
+        this.clientSecret = PropertiesUtil.getValueString("office.clientSecret") ?: ""
+    }
+
+
+    //    fun getList() = runBlocking {
 //        val dto = ssrService.findAll()
 //
 //        return@runBlocking dto.map {
@@ -26,13 +47,39 @@ class OfficeController {
 //            )
 //        }
 //    }
+    fun getConfig(): Map<String, Array<out Any>> {
+        val c = mapOf(
+            "subscriptions" to arrayOf(
+                mapOf(
+                    "name" to "E5 开发者订阅",
+                    "sku" to "c42b9cae-ea4f-4ab7-9717-81576235ccac"
+                )
+            ),
+            "domains" to arrayOf("yayoo.tk"),
+        )
+        return c
+    }
 
-    suspend fun getAccessToken() {
-        val url = "https://login.microsoftonline.com/${_tenantId}/oauth2/v2.0/token"
+    suspend fun createAccount(request: AccountInput) = runCatching {
+        val dto = activationCodeService.find(request.code)
+        if (dto != null) {
+            // 激活码有效，创建账号
+            getAccessToken()
+            createUser(request.nickname,request.username, request.password, request.domain)
+            assignLicense("${request.username}@${request.domain}", request.skuId)
+            // 使激活码无效
+            activationCodeService.updateStatus(dto.id, 0)
+        } else {
+            throw Exception("激活码无效")
+        }
+    }
+
+    private suspend fun getAccessToken() {
+        val url = "https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token"
         val body = mapOf(
             "grant_type" to "client_credentials",
-            "client_id" to _clientId,
-            "client_secret" to _clientSecret,
+            "client_id" to clientId,
+            "client_secret" to clientSecret,
             "scope" to "https://graph.microsoft.com/.default"
         )
 
@@ -40,7 +87,7 @@ class OfficeController {
         val objectMapper = ObjectMapper()
         val jsonNode = objectMapper.readTree(result)
         val accessToken = jsonNode["access_token"]
-        _token = accessToken.asText() ?: null
+        token = accessToken.asText() ?: null
     }
 
     /**
@@ -50,8 +97,8 @@ class OfficeController {
      * @param password 密码
      * @param domain 域名
      */
-    suspend fun createUser(nickname: String, username: String, password: String, domain: String) {
-        if (_token == null)
+    private suspend fun createUser(nickname: String, username: String, password: String, domain: String) {
+        if (token == null)
             throw Exception("Token is null")
 
         val url = "https://graph.microsoft.com/v1.0/users"
@@ -68,7 +115,7 @@ class OfficeController {
             "usageLocation" to "CN"
         )
         val headers = mapOf(
-            "Authorization" to "Bearer $_token",
+            "Authorization" to "Bearer $token",
             "content-type" to "application/json"
         )
 
@@ -90,8 +137,8 @@ class OfficeController {
         }
     }
 
-    suspend fun assignLicense(email: String, skuId: String) {
-        if (_token == null)
+    private suspend fun assignLicense(email: String, skuId: String) {
+        if (token == null)
             throw Exception("Token is null")
 
         val url = "https://graph.microsoft.com/v1.0/users/$email/assignLicense"
@@ -106,7 +153,7 @@ class OfficeController {
         )
 
         val headers = mapOf(
-            "Authorization" to "Bearer $_token",
+            "Authorization" to "Bearer $token",
             "content-type" to "application/json"
         )
 
