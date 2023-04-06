@@ -40,7 +40,7 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ResultBase"
   /api/v1/office/create:
     post:
       description: ""
@@ -59,6 +59,21 @@ paths:
                 $ref: "#/components/schemas/ResultBase"
 components:
   schemas:
+    Object:
+      type: "object"
+      properties: {}
+    ResultBase:
+      type: "object"
+      properties:
+        success:
+          type: "boolean"
+        error:
+          type: "integer"
+          format: "int32"
+        errorMsg:
+          type: "string"
+        data:
+          $ref: "#/components/schemas/Object"
     AccountRequest:
       type: "object"
       properties:
@@ -72,25 +87,3 @@ components:
           type: "string"
         skuId:
           type: "string"
-    HttpStatusCode:
-      type: "object"
-      properties:
-        value:
-          type: "integer"
-          format: "int32"
-        description:
-          type: "string"
-    Object:
-      type: "object"
-      properties: {}
-    ResultBase:
-      type: "object"
-      properties:
-        success:
-          type: "boolean"
-        error:
-          $ref: "#/components/schemas/HttpStatusCode"
-        errorMsg:
-          type: "string"
-        data:
-          $ref: "#/components/schemas/Object"

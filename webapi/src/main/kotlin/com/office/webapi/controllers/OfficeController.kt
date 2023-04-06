@@ -78,12 +78,16 @@ class OfficeController {
 
         val objectMapper = ObjectMapper()
         val jsonNode = objectMapper.readTree(result)
-
-        if (jsonNode["status"].asInt() != 201)
-            if (jsonNode["error"]["message"]?.asText()?.contains("userPrincipalName already exists") == true)
-                throw Exception("Username Exists")
-            else
+        if (jsonNode["error"] != null) {
+            if(jsonNode["error"]["message"].asText().contains("The specified password does not comply with password complexity requirements")) {
+                throw Exception("指定的密码不符合密码复杂性要求。")
+            } else if(jsonNode["error"]["message"].asText().contains("Password cannot contain username")) {
+                throw Exception("密码不能包含用户名。")
+            } else if (jsonNode["error"]["message"].asText().contains("userPrincipalName already exists")) {
+                throw Exception("用户名已存在。")
+            } else
                 throw Exception(result)
+        }
     }
 
     suspend fun assignLicense(email: String, skuId: String) {
@@ -113,8 +117,9 @@ class OfficeController {
         val objectMapper = ObjectMapper()
         val jsonNode = objectMapper.readTree(result)
 
-        if (jsonNode["status"].asInt() != 200)
+        if (jsonNode["error"] != null) {
             throw Exception(result)
+        }
     }
 
 

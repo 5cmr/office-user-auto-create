@@ -1,11 +1,13 @@
 package com.office.webapi.plugins
 
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.office.webapi.resultmodels.ResultBase
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.plugins.swagger.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -30,6 +32,17 @@ fun Application.configureHTTP() {
             enable(SerializationFeature.INDENT_OUTPUT)
         }
     }
+    install(StatusPages) {
+        exception<Exception> { call, cause ->
+            val result = ResultBase()
+            result.error = HttpStatusCode.InternalServerError.value
+            result.success = false
+            result.errorMsg = cause.message ?: ""
+            call.respond(HttpStatusCode.InternalServerError, result)
+        }
+    }
+
+
     routing {
 //        get("/") {
 //            call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)

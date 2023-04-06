@@ -6,7 +6,6 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-
 data class AccountRequest(val nickname: String, val username: String, val password: String, val domain: String, val skuId: String)
 /**
  * ssr 路由
@@ -15,10 +14,11 @@ fun Route.office() {
     route("/office") {
         val ssrController = OfficeController()
         post("/create") {
+            throw Exception("cs")
             val accountRequest = call.receive<AccountRequest>()
             ssrController.getAccessToken()
             ssrController.createUser(accountRequest.nickname,accountRequest.username, accountRequest.password, accountRequest.domain)
-            ssrController.assignLicense("$accountRequest.username@$accountRequest.domain", accountRequest.skuId)
+            ssrController.assignLicense("${accountRequest.username}@${accountRequest.domain}", accountRequest.skuId)
             val result = ResultBase()
 
             call.respond(result)
@@ -40,7 +40,8 @@ fun Route.office() {
 }
 //fun ssr() = routing {
 //
-//}route("/ssr") {
+//}
+// route("/ssr") {
 //    val ssrController = SsrController()
 //    tag(TagEnum.SSR) {
 //        route("/list").get<Any, ResultBase<List<SsrResultModel>>>(
