@@ -1,2 +1,2 @@
 rootProject.name = "office-user-auto-create"
-include( ":webapi")
+include(":core", ":webapi")

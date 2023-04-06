@@ -1,6 +1,7 @@
 package com.prprpr.core.util
 
 import org.apache.commons.configuration2.CombinedConfiguration
+import org.apache.commons.configuration2.Configuration
 import org.apache.commons.configuration2.PropertiesConfiguration
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder
 import org.apache.commons.configuration2.builder.fluent.Configurations
@@ -36,7 +37,6 @@ class PropertiesUtil {
         fun getValueString(key: String): String? {
             return config.getString(key)
         }
-
         /**
          * 获取int类型的value
          * @param key

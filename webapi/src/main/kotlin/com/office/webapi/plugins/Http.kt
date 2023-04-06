@@ -1,16 +1,21 @@
 package com.office.webapi.plugins
 
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.prprpr.core.util.PropertiesUtil
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
+import io.ktor.server.locations.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.swagger.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
+@OptIn(KtorExperimentalLocationsAPI::class)
 fun Application.configureHTTP() {
+    install(Locations) {
+    }
     install(CORS) {
         allowMethod(HttpMethod.Options)
         allowMethod(HttpMethod.Put)
@@ -20,10 +25,10 @@ fun Application.configureHTTP() {
         allowHeader("MyCustomHeader")
         allowHeader(HttpHeaders.ContentType)
         allowCredentials = true
-        anyHost() // @TODO: Don't do this in production if possible. Try to limit it.
-        allowHost("0.0.0.0:8080")
-        //val cors = PropertiesUtil.getValueString("app.cors")!!
-        //hosts.addAll(cors.split(',').toMutableSet())
+//        anyHost() // @TODO: Don't do this in production if possible. Try to limit it.
+//        allowHost("0.0.0.0:8080")
+        val cors = PropertiesUtil.getValueString("app.cors")!!
+        hosts.addAll(cors.split(',').toMutableSet())
     }
     install(ContentNegotiation) {
         jackson {

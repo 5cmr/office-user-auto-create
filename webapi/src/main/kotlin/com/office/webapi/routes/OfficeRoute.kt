@@ -3,37 +3,31 @@ package com.office.webapi.routes
 import com.office.webapi.controllers.OfficeController
 import com.office.webapi.resultmodels.ResultBase
 import io.ktor.server.application.*
+import io.ktor.server.locations.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.routing.post
 
-data class AccountRequest(val nickname: String, val username: String, val password: String, val domain: String, val skuId: String)
+
 /**
  * ssr 路由
  */
+@OptIn(KtorExperimentalLocationsAPI::class)
 fun Route.office() {
     route("/office") {
         val ssrController = OfficeController()
-        post("/create") {
-            val accountRequest = call.receive<AccountRequest>()
-            ssrController.getAccessToken()
-            ssrController.createUser(accountRequest.nickname,accountRequest.username, accountRequest.password, accountRequest.domain)
-            ssrController.assignLicense("$accountRequest.username@$accountRequest.domain", accountRequest.skuId)
+        post<OfficeController.AccountInput> {
+            ssrController.createAccount(it)
             val result = ResultBase()
 
             call.respond(result)
         }
 
         get("/config") {
-            val c = mapOf(
-                "subscriptions" to arrayOf(mapOf(
-                    "name" to "E5 开发者订阅",
-                    "sku" to "c42b9cae-ea4f-4ab7-9717-81576235ccac"
-                )),
-                "domains" to arrayOf("yayoo.tk"),
-            )
             val result = ResultBase()
-            result.data = c
+            val config = ssrController.getConfig()
+            result.data = config
             call.respond(result)
         }
     }
