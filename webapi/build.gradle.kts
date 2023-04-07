@@ -5,14 +5,12 @@ val kotlin_version: String by project
 val logback_version: String by project
 
 plugins {
-    application
     kotlin("jvm") version "1.8.10"
-    id("com.github.johnrengelman.shadow")
+    id("io.ktor.plugin") version "2.2.4"
 }
 
 group = "com.office"
 version = "0.0.1"
-val mainClassName = "io.ktor.server.netty.EngineMain"
 
 application {
     mainClass.set("com.office.webapi.ApplicationKt")
@@ -54,9 +52,8 @@ dependencies {
 
 
 }
-
-tasks.named<ShadowJar>("shadowJar") {
-    manifest {
-        attributes["Main-Class"] = mainClassName
+ktor {
+    fatJar {
+        archiveFileName.set("fat.jar")
     }
 }

@@ -4,7 +4,7 @@ info:
   description: "office_user_auto_create API"
   version: "1.0.0"
 servers:
-- url: "http://localhost:8080"
+- url: "https://office_user_auto_create"
 paths:
   /json/jackson:
     get:
@@ -31,6 +31,22 @@ paths:
             '*/*':
               schema:
                 type: "string"
+  /api/v1/announcement/{id}:
+    get:
+      description: ""
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "number"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ResultBase"
   /api/v1/office/config:
     get:
       description: ""
@@ -44,12 +60,37 @@ paths:
   /api/v1/office/create:
     post:
       description: ""
-      requestBody:
-        content:
-          'application/json':
-            schema:
-              $ref: "#/components/schemas/AccountRequest"
+      parameters:
+      - name: "nickname"
+        in: "query"
         required: true
+        schema:
+          type: "string"
+      - name: "username"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      - name: "password"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      - name: "domain"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      - name: "skuId"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      - name: "code"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
       responses:
         "200":
           description: "OK"
@@ -67,23 +108,10 @@ components:
       properties:
         success:
           type: "boolean"
-        error:
+        code:
           type: "integer"
           format: "int32"
-        errorMsg:
+        message:
           type: "string"
         data:
           $ref: "#/components/schemas/Object"
-    AccountRequest:
-      type: "object"
-      properties:
-        nickname:
-          type: "string"
-        username:
-          type: "string"
-        password:
-          type: "string"
-        domain:
-          type: "string"
-        skuId:
-          type: "string"

@@ -6,6 +6,6 @@ package com.office.core.domain.dto
 data class ActivationCodeDto (
     val id: Long,
     val code: String,
-    val addTime: Long,
+    val createTime: Long,
     val status: Int
 )

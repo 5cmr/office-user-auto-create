@@ -23,7 +23,7 @@ class ActivationCodeService {
     fun add(dto: ActivationCodeDto): Long {
         val model = MActivationCode(
             code = dto.code,
-            addTime = System.currentTimeMillis(),
+            createTime = System.currentTimeMillis(),
             status = 1,
         )
         return activationCodeRepository.add(model)
@@ -59,7 +59,7 @@ class ActivationCodeService {
         return if (models.isNotEmpty()) {
             ActivationCodeDto(
                 id = models[0].id,
-                addTime = models[0].addTime,
+                createTime = models[0].createTime,
                 status = models[0].status,
                 code = models[0].code
             )
