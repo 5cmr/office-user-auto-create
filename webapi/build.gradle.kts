@@ -15,7 +15,7 @@ version = "0.0.1"
 val mainClassName = "io.ktor.server.netty.EngineMain"
 
 application {
-    mainClass.set("com.office.ApplicationKt")
+    mainClass.set("com.office.webapi.ApplicationKt")
 }
 
 dependencies {

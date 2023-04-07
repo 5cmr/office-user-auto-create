@@ -60,6 +60,7 @@ class OfficeController {
         return c
     }
 
+    @OptIn(KtorExperimentalLocationsAPI::class)
     suspend fun createAccount(request: AccountInput) = runCatching {
         val dto = activationCodeService.find(request.code)
         if (dto != null) {
