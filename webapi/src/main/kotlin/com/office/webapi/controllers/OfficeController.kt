@@ -66,7 +66,7 @@ class OfficeController {
         if (dto != null) {
             // 激活码有效，创建账号
             getAccessToken()
-            createUser(request.nickname,request.username, request.password, request.domain)
+            createUser(request.nickname, request.username, request.password, request.domain)
             assignLicense("${request.username}@${request.domain}", request.skuId)
             // 使激活码无效
             activationCodeService.updateStatus(dto.id, 0)
@@ -127,9 +127,11 @@ class OfficeController {
         val objectMapper = ObjectMapper()
         val jsonNode = objectMapper.readTree(result)
         if (jsonNode["error"] != null) {
-            if(jsonNode["error"]["message"].asText().contains("The specified password does not comply with password complexity requirements")) {
+            if (jsonNode["error"]["message"].asText()
+                    .contains("The specified password does not comply with password complexity requirements")
+            ) {
                 throw Exception("指定的密码不符合密码复杂性要求。")
-            } else if(jsonNode["error"]["message"].asText().contains("Password cannot contain username")) {
+            } else if (jsonNode["error"]["message"].asText().contains("Password cannot contain username")) {
                 throw Exception("密码不能包含用户名。")
             } else if (jsonNode["error"]["message"].asText().contains("userPrincipalName already exists")) {
                 throw Exception("用户名已存在。")

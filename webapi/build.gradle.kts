@@ -37,20 +37,19 @@ dependencies {
     implementation("io.ktor:ktor-server-call-logging:$ktor_version")
     implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-serialization-jackson:$ktor_version")
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
-    implementation("io.ktor:ktor-server-core:$ktor_version")
+    implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
+    implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-locations:$ktor_version")
-    testImplementation("io.ktor:ktor-server-tests:$ktor_version")
+    implementation("io.ktor:ktor-server-swagger:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 
     implementation("com.zaxxer:HikariCP:5.0.0")
     implementation("mysql:mysql-connector-java:8.0.32")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.32.1")
 
-    implementation("io.ktor:ktor-server-swagger:$ktor_version")
-
     implementation(project(path=":core"))
-//    implementation(kotlin("stdlib-jdk8"))
+    testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
+    //    implementation(kotlin("stdlib-jdk8"))
 
 
 }
