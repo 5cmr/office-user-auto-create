@@ -23,7 +23,7 @@ class ActivationCodeRepository {
         transaction {
             id = TActivationCode.insert {
                 it[code] = model.code
-                it[addTime] = model.addTime
+                it[createTime] = model.createTime
                 it[status] = model.status
             } [TActivationCode.id]
             commit()
@@ -44,7 +44,7 @@ class ActivationCodeRepository {
                 MActivationCode(
                     id = it[TActivationCode.id],
                     code = it[TActivationCode.code],
-                    addTime = it[TActivationCode.addTime],
+                    createTime = it[TActivationCode.createTime],
                     status = it[TActivationCode.status]
                 )
             }
@@ -64,7 +64,7 @@ class ActivationCodeRepository {
             model = TActivationCode.select(TActivationCode.id.eq(id)).map { MActivationCode(
                 code = it[TActivationCode.code],
                 id = it[TActivationCode.id],
-                addTime = it[TActivationCode.addTime],
+                createTime = it[TActivationCode.createTime],
                 status = it[TActivationCode.status]
             ) }.first()
             commit()
@@ -76,7 +76,7 @@ class ActivationCodeRepository {
         transaction {
             TActivationCode.update({TActivationCode.id eq model.id} ) {
                 it[code] = model.code
-                it[addTime] = model.addTime
+                it[createTime] = model.createTime
                 it[status] = model.status
             }
             commit()

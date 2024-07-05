@@ -7,7 +7,7 @@ import io.ktor.http.HttpStatusCode
  */
 data class ResultBase(
     var success: Boolean = true,  // 是否成功
-    var error: Int = HttpStatusCode.OK.value,  // 错误代码
-    var errorMsg: String = "",  // 错误信息
+    var code: Int = HttpStatusCode.OK.value,  // 错误代码
+    var message: String? = "",  // 错误信息
     var data: Any? = null  // 数据
 )
